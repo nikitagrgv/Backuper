@@ -38,8 +38,8 @@ namespace Backuper.ApplicationSettings
         {
             var exampleJsonString = JsonSerializer.Serialize(new RawSettings
             {
-                TargetDir = "target",
-                SourceDirs = new[] {"source", "another source"}
+                TargetDir = "D:\\TEST\\TO",
+                SourceDirs = new[] { "D:\\TEST\\FROM1", "D:\\TEST\\FROM2" }
             }, new JsonSerializerOptions {WriteIndented = true});
 
             File.WriteAllText(exampleJsonFile, exampleJsonString);
