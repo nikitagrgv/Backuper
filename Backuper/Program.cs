@@ -1,4 +1,5 @@
 ﻿using System;
+using Backuper.ApplicationSettings;
 
 namespace Backuper
 {
@@ -6,7 +7,23 @@ namespace Backuper
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Settings settings;
+            try
+            {
+                settings = new Settings("settings.json");
+            }
+            catch (SettingsException e)
+            {
+                Console.WriteLine($"{e.Message} ({e.GetFileName()})");
+
+                string exampleFile = "example.json";
+                Console.WriteLine($"See example in {exampleFile}");
+                Settings.GenerateExampleJsonFile(exampleFile);
+
+                Console.ReadKey();
+                return;
+            }
+
         }
     }
 }
