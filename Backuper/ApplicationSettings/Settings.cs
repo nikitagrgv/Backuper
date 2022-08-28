@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using System.Text.Json;
 
 namespace Backuper.ApplicationSettings
@@ -13,6 +14,9 @@ namespace Backuper.ApplicationSettings
             {
                 var jsonString = File.ReadAllText(settingsFileName);
                 _rawSettings = JsonSerializer.Deserialize<RawSettings>(jsonString);
+
+                if (_rawSettings.SourceDirs == null || _rawSettings.TargetDir == null)
+                    throw new BadJsonFileException(settingsFileName);
             }
             catch (JsonException)
             {
@@ -20,7 +24,7 @@ namespace Backuper.ApplicationSettings
             }
             catch (FileNotFoundException)
             {
-                throw new SettingsFileNotFoundException(settingsFileName);
+                throw new NotFoundSettingsFileException(settingsFileName);
             }
         }
 
@@ -34,12 +38,25 @@ namespace Backuper.ApplicationSettings
             return _rawSettings.TargetDir;
         }
 
+        public string GetInfo()
+        {
+            var info = new StringBuilder();
+
+            info.Append($"Target directory: {_rawSettings.TargetDir}\n");
+            info.Append($"Source directories [{_rawSettings.SourceDirs.Length}]: \n");
+
+            foreach (var sourceDir in _rawSettings.SourceDirs)
+                info.Append($"  {sourceDir}\n");
+
+            return info.ToString();
+        }
+
         public static void GenerateExampleJsonFile(string exampleJsonFile)
         {
             var exampleJsonString = JsonSerializer.Serialize(new RawSettings
             {
                 TargetDir = "D:\\TEST\\TO",
-                SourceDirs = new[] { "D:\\TEST\\FROM1", "D:\\TEST\\FROM2" }
+                SourceDirs = new[] {"D:\\TEST\\FROM1", "D:\\TEST\\FROM2"}
             }, new JsonSerializerOptions {WriteIndented = true});
 
             File.WriteAllText(exampleJsonFile, exampleJsonString);
