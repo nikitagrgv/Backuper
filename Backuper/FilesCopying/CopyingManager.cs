@@ -32,7 +32,9 @@ namespace Backuper.FilesCopying
         public void DoBackup()
         {
             foreach (var sourceDir in _settings.getSourceDirs())
+            {
                 CopyAllFromDirectory(sourceDir, _settings.getTargetDir());
+            }
         }
 
         private void CopyAllFromDirectory(string sourcePath, string backupPath)
@@ -46,8 +48,13 @@ namespace Backuper.FilesCopying
         private string GetTargetPath(string sourcePath, string backupPath)
         {
             var sourceDirName = new DirectoryInfo(sourcePath).Name;
-            var targetPath = backupPath + "\\" + sourceDirName;
+            var targetPath = $"{backupPath}\\{GetDatestamp()}\\{sourceDirName}";
             return targetPath;
+        }
+
+        private string GetDatestamp()
+        {
+            return DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss");
         }
 
         private void CopyAllSubdirectories(string sourcePath, string targetPath)

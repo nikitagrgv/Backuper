@@ -2,6 +2,9 @@
 using System.Text;
 using System.Text.Json;
 
+// TODO: DISPOSE
+// TODO: OVERWRITE FILE
+
 namespace Backuper.ApplicationSettings
 {
     internal class Settings
