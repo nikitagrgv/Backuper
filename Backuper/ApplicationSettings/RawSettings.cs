@@ -1,13 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace Backuper.ApplicationSettings;
 
-namespace Backuper.ApplicationSettings
+public struct RawSettings
 {
-    public class RawSettings
-    {
-        public string TargetDir { get; set; }
-        public string[] SourceDirs { get; set; }
-
-        // [JsonConverter(typeof(JsonStringEnumConverter))]
-    }
-
+    public string TargetDir { get; set; }
+    public string[] SourceDirs { get; set; }
 }
