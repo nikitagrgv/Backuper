@@ -67,16 +67,7 @@ internal class Settings
 
     public static void CreateExampleJsonFile(string exampleJsonFilename)
     {
-        var exampleJsonString = JsonSerializer.Serialize(GetExampleRawSettings(), JsonSerializerOptions);
+        var exampleJsonString = JsonSerializer.Serialize(RawSettings.GetExample(), JsonSerializerOptions);
         File.WriteAllText(exampleJsonFilename, exampleJsonString);
-    }
-
-    private static RawSettings GetExampleRawSettings()
-    {
-        return new RawSettings
-        {
-            TargetDir = "D:\\TEST\\TO",
-            SourceDirs = new[] {"D:\\TEST\\FROM1", "D:\\TEST\\FROM2"}
-        };
     }
 }
