@@ -8,13 +8,13 @@ internal class CopyingManager
 {
     public delegate void CopyEventHandler(string name);
 
+    private readonly string _currDateString;
     private readonly Settings _settings;
-    private readonly string _datestamp = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss");
-
 
     public CopyingManager(Settings settings)
     {
         _settings = settings;
+        _currDateString = DateTime.Now.ToString("yyyy.MM.dd-HH.mm.ss");
 
         try
         {
@@ -35,7 +35,6 @@ internal class CopyingManager
     public void DoBackup()
     {
         foreach (var sourceDir in _settings.GetSourceDirs())
-        {
             try
             {
                 DoBackupDir(sourceDir, _settings.GetTargetDir());
@@ -44,7 +43,6 @@ internal class CopyingManager
             {
                 OnDirBackupFailed(sourceDir);
             }
-        }
     }
 
     private void DoBackupDir(string sourcePath, string backupPath)
@@ -58,7 +56,7 @@ internal class CopyingManager
     private string GetTargetPath(string sourcePath, string backupPath)
     {
         var sourceDirName = new DirectoryInfo(sourcePath).Name;
-        var targetPath = $"{backupPath}\\{_datestamp}\\{sourceDirName}";
+        var targetPath = $"{backupPath}\\{_currDateString}\\{sourceDirName}";
         return targetPath;
     }
 
