@@ -42,12 +42,12 @@ internal class Settings
             throw new BadSettingsFileException(_settingsFilename);
     }
 
-    public string[] GetSourceDirectories()
+    public string[] GetSourceDirs()
     {
         return _rawSettings.SourceDirs;
     }
 
-    public string GetTargetDirectory()
+    public string GetTargetDir()
     {
         return _rawSettings.TargetDir;
     }

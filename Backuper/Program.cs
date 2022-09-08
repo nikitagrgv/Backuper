@@ -18,9 +18,9 @@ namespace Backuper
 
                 copyingManager.FileCopied += OnFileCopied;
                 copyingManager.FileNotCopied += OnFileNotCopied;
-                copyingManager.DirectoryCreated += OnDirectoryCreated;
-                copyingManager.DirectoryNotCreated += OnDirectoryNotCreated;
-                copyingManager.DirectoryBackupFailed += OnDirectoryBackupFailed;
+                copyingManager.DirCreated += OnDirCreated;
+                copyingManager.DirNotCreated += OnDirNotCreated;
+                copyingManager.DirBackupFailed += OnDirBackupFailed;
 
                 copyingManager.DoBackup();
 
@@ -37,7 +37,7 @@ namespace Backuper
 
                 Console.ReadKey();
             }
-            catch (TargetDirectoryNotCreatedException e)
+            catch (TargetDirNotCreatedException e)
             {
                 Console.WriteLine($"{e.Message} ({e.GetTargetDir()})");
 
@@ -45,12 +45,12 @@ namespace Backuper
             }
         }
         
-        private static void OnDirectoryNotCreated(string dir)
+        private static void OnDirNotCreated(string dir)
         {
             Console.WriteLine($"Directory not created: {dir}");
         }
 
-        private static void OnDirectoryCreated(string dir)
+        private static void OnDirCreated(string dir)
         {
             Console.WriteLine($"Directory created: {dir}");
         }
@@ -65,7 +65,7 @@ namespace Backuper
             Console.WriteLine($"File copied: {file}");
         }
 
-        private static void OnDirectoryBackupFailed(string dir)
+        private static void OnDirBackupFailed(string dir)
         {
             Console.WriteLine($"Directory backup failed: {dir}");
         }

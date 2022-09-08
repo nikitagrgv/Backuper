@@ -18,40 +18,40 @@ internal class CopyingManager
 
         try
         {
-            Directory.CreateDirectory(_settings.GetTargetDirectory());
+            Directory.CreateDirectory(_settings.GetTargetDir());
         }
         catch
         {
-            throw new TargetDirectoryNotCreatedException(_settings.GetTargetDirectory());
+            throw new TargetDirNotCreatedException(_settings.GetTargetDir());
         }
     }
 
     public event CopyEventHandler FileCopied;
     public event CopyEventHandler FileNotCopied;
-    public event CopyEventHandler DirectoryCreated;
-    public event CopyEventHandler DirectoryNotCreated;
-    public event CopyEventHandler DirectoryBackupFailed;
+    public event CopyEventHandler DirCreated;
+    public event CopyEventHandler DirNotCreated;
+    public event CopyEventHandler DirBackupFailed;
 
     public void DoBackup()
     {
-        foreach (var sourceDir in _settings.GetSourceDirectories())
+        foreach (var sourceDir in _settings.GetSourceDirs())
         {
             try
             {
-                DoBackupDirectory(sourceDir, _settings.GetTargetDirectory());
+                DoBackupDir(sourceDir, _settings.GetTargetDir());
             }
             catch
             {
-                OnDirectoryBackupFailed(sourceDir);
+                OnDirBackupFailed(sourceDir);
             }
         }
     }
 
-    private void DoBackupDirectory(string sourcePath, string backupPath)
+    private void DoBackupDir(string sourcePath, string backupPath)
     {
         var targetPath = GetTargetPath(sourcePath, backupPath);
 
-        CreateAllBackupSubdirectories(sourcePath, targetPath);
+        CreateAllBackupSubdirs(sourcePath, targetPath);
         CopyAllFiles(sourcePath, targetPath);
     }
 
@@ -62,41 +62,41 @@ internal class CopyingManager
         return targetPath;
     }
 
-    private void CreateAllBackupSubdirectories(string sourcePath, string targetPath)
+    private void CreateAllBackupSubdirs(string sourcePath, string targetPath)
     {
-        var subdirectories = GetAllSubdirectories(sourcePath);
+        var subdirs = GetAllSubdirs(sourcePath);
 
-        foreach (var subdirectoryPath in subdirectories)
+        foreach (var subdirPath in subdirs)
         {
-            var newSubdirectoryPath = subdirectoryPath.Replace(sourcePath, targetPath);
+            var newSubdirPath = subdirPath.Replace(sourcePath, targetPath);
 
             try
             {
-                CreateDirectory(newSubdirectoryPath);
+                CreateDir(newSubdirPath);
             }
             catch
             {
-                OnDirectoryNotCreated(newSubdirectoryPath);
+                OnDirNotCreated(newSubdirPath);
             }
         }
     }
 
-    private static string[] GetAllSubdirectories(string sourcePath)
+    private static string[] GetAllSubdirs(string sourcePath)
     {
         return Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories);
     }
 
-    private void CreateDirectory(string newSubdirectoryPath)
+    private void CreateDir(string newSubdirPath)
     {
-        if (Directory.Exists(newSubdirectoryPath)) return;
+        if (Directory.Exists(newSubdirPath)) return;
 
-        Directory.CreateDirectory(newSubdirectoryPath);
-        OnDirectoryCreated(newSubdirectoryPath);
+        Directory.CreateDirectory(newSubdirPath);
+        OnDirCreated(newSubdirPath);
     }
 
     private void CopyAllFiles(string sourcePath, string targetPath)
     {
-        var allFiles = GetAllFilesInDirectory(sourcePath);
+        var allFiles = GetAllFilesInDir(sourcePath);
 
         foreach (var filePath in allFiles)
         {
@@ -112,7 +112,7 @@ internal class CopyingManager
         }
     }
 
-    private static string[] GetAllFilesInDirectory(string sourcePath)
+    private static string[] GetAllFilesInDir(string sourcePath)
     {
         return Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories);
     }
@@ -133,34 +133,34 @@ internal class CopyingManager
         FileNotCopied?.Invoke(filename);
     }
 
-    private void OnDirectoryCreated(string dirName)
+    private void OnDirCreated(string dirName)
     {
-        DirectoryCreated?.Invoke(dirName);
+        DirCreated?.Invoke(dirName);
     }
 
-    private void OnDirectoryNotCreated(string dirName)
+    private void OnDirNotCreated(string dirName)
     {
-        DirectoryNotCreated?.Invoke(dirName);
+        DirNotCreated?.Invoke(dirName);
     }
 
-    private void OnDirectoryBackupFailed(string dirName)
+    private void OnDirBackupFailed(string dirName)
     {
-        DirectoryBackupFailed?.Invoke(dirName);
+        DirBackupFailed?.Invoke(dirName);
     }
 }
 
-public class TargetDirectoryNotCreatedException : ApplicationException
+public class TargetDirNotCreatedException : ApplicationException
 {
-    private readonly string _targetDirectory;
+    private readonly string _targetDir;
 
-    public TargetDirectoryNotCreatedException(string targetDirectory)
+    public TargetDirNotCreatedException(string targetDir)
         : base("Failed to create target directory")
     {
-        _targetDirectory = targetDirectory;
+        _targetDir = targetDir;
     }
 
     public string GetTargetDir()
     {
-        return _targetDirectory;
+        return _targetDir;
     }
 }
