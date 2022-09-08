@@ -1,36 +1,35 @@
 ﻿using System;
 
-namespace Backuper.ApplicationSettings
+namespace Backuper.ApplicationSettings;
+
+internal class SettingsFileException : ApplicationException
 {
-    internal class SettingsFileException : ApplicationException
+    private readonly string _settingsFilename;
+
+    protected SettingsFileException(string message, string settingsFilename)
+        : base(message)
     {
-        private readonly string _settingsFileName;
-
-        public SettingsFileException(string message, string settingsFileName)
-            : base(message)
-        {
-            _settingsFileName = settingsFileName;
-        }
-
-        public string GetSettingsFileName()
-        {
-            return _settingsFileName;
-        }
+        _settingsFilename = settingsFilename;
     }
 
-    internal class BadJsonFileException : SettingsFileException
+    public string GetSettingsFilename()
     {
-        public BadJsonFileException(string settingsFileName)
-            : base("Bad settings json file", settingsFileName)
-        {
-        }
+        return _settingsFilename;
     }
+}
 
-    internal class NotFoundSettingsFileException : SettingsFileException
+internal class BadSettingsFileException : SettingsFileException
+{
+    public BadSettingsFileException(string settingsFilename)
+        : base("Bad settings file", settingsFilename)
     {
-        public NotFoundSettingsFileException(string settingsFileName)
-            : base("Settings file not found", settingsFileName)
-        {
-        }
+    }
+}
+
+internal class NotFoundSettingsFileException : SettingsFileException
+{
+    public NotFoundSettingsFileException(string settingsFilename)
+        : base("Settings file not found", settingsFilename)
+    {
     }
 }
