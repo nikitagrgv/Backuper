@@ -2,67 +2,81 @@
 using System.Text;
 using System.Text.Json;
 
-// TODO: DISPOSE
-// TODO: OVERWRITE FILE
+namespace Backuper.ApplicationSettings;
 
-namespace Backuper.ApplicationSettings
+internal class Settings
 {
-    internal class Settings
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {WriteIndented = true};
+
+    private readonly string _settingsFilename;
+    private RawSettings _rawSettings;
+
+    public Settings(string settingsFilename)
     {
-        private readonly RawSettings _rawSettings;
-
-        public Settings(string settingsFileName)
+        try
         {
-            try
-            {
-                var jsonString = File.ReadAllText(settingsFileName);
-                _rawSettings = JsonSerializer.Deserialize<RawSettings>(jsonString);
-
-                if (_rawSettings.SourceDirs == null || _rawSettings.TargetDir == null)
-                    throw new BadJsonFileException(settingsFileName);
-            }
-            catch (JsonException)
-            {
-                throw new BadJsonFileException(settingsFileName);
-            }
-            catch (FileNotFoundException)
-            {
-                throw new NotFoundSettingsFileException(settingsFileName);
-            }
+            _settingsFilename = settingsFilename;
+            DeserializeSettings();
+            ValidateSettings();
         }
-
-        public string[] getSourceDirs()
+        catch (JsonException)
         {
-            return _rawSettings.SourceDirs;
+            throw new BadSettingsFileException(settingsFilename);
         }
-
-        public string getTargetDir()
+        catch (FileNotFoundException)
         {
-            return _rawSettings.TargetDir;
+            throw new NotFoundSettingsFileException(settingsFilename);
         }
+    }
 
-        public string GetInfo()
+    private void DeserializeSettings()
+    {
+        var jsonString = File.ReadAllText(_settingsFilename);
+        _rawSettings = JsonSerializer.Deserialize<RawSettings>(jsonString);
+    }
+
+    private void ValidateSettings()
+    {
+        if (_rawSettings.TargetDir == null ||
+            _rawSettings.SourceDirs == null)
+            throw new BadSettingsFileException(_settingsFilename);
+    }
+
+    public string[] GetSourceDirectories()
+    {
+        return _rawSettings.SourceDirs;
+    }
+
+    public string GetTargetDirectory()
+    {
+        return _rawSettings.TargetDir;
+    }
+
+    public string GetInfo()
+    {
+        var info = new StringBuilder();
+
+        info.AppendLine($"Target directory: {_rawSettings.TargetDir}");
+        info.AppendLine($"Source directories [{_rawSettings.SourceDirs.Length.ToString()}]:");
+
+        foreach (var sourceDir in _rawSettings.SourceDirs)
+            info.AppendLine($"  {sourceDir}");
+
+        return info.ToString();
+    }
+
+    public static void CreateExampleJsonFile(string exampleJsonFilename)
+    {
+        var exampleJsonString = JsonSerializer.Serialize(GetExampleRawSettings(), JsonSerializerOptions);
+        File.WriteAllText(exampleJsonFilename, exampleJsonString);
+    }
+
+    private static RawSettings GetExampleRawSettings()
+    {
+        return new RawSettings
         {
-            var info = new StringBuilder();
-
-            info.Append($"Target directory: {_rawSettings.TargetDir}\n");
-            info.Append($"Source directories [{_rawSettings.SourceDirs.Length}]: \n");
-
-            foreach (var sourceDir in _rawSettings.SourceDirs)
-                info.Append($"  {sourceDir}\n");
-
-            return info.ToString();
-        }
-
-        public static void GenerateExampleJsonFile(string exampleJsonFile)
-        {
-            var exampleJsonString = JsonSerializer.Serialize(new RawSettings
-            {
-                TargetDir = "D:\\TEST\\TO",
-                SourceDirs = new[] {"D:\\TEST\\FROM1", "D:\\TEST\\FROM2"}
-            }, new JsonSerializerOptions {WriteIndented = true});
-
-            File.WriteAllText(exampleJsonFile, exampleJsonString);
-        }
+            TargetDir = "D:\\TEST\\TO",
+            SourceDirs = new[] {"D:\\TEST\\FROM1", "D:\\TEST\\FROM2"}
+        };
     }
 }
