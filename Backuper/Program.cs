@@ -2,71 +2,72 @@
 using Backuper.ApplicationSettings;
 using Backuper.FilesCopying;
 
-namespace Backuper;
-
-public class Program
+namespace Backuper
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        try
+        public static void Main(string[] args)
         {
-            var settings = new Settings("settings.json");
+            try
+            {
+                var settingsManager = new SettingsManager("settings.json");
 
-            Console.WriteLine(settings.GetInfo());
+                Console.WriteLine(settingsManager.GetSettingsInfo());
 
-            var copyingManager = new CopyingManager(settings);
+                var backupManager = new BackupManager(settingsManager);
 
-            copyingManager.FileCopied += OnFileCopied;
-            copyingManager.FileNotCopied += OnFileNotCopied;
-            copyingManager.DirCreated += OnDirCreated;
-            copyingManager.DirNotCreated += OnDirNotCreated;
-            copyingManager.DirBackupFailed += OnDirBackupFailed;
+                backupManager.FileCopied += OnFileCopied;
+                backupManager.FileNotCopied += OnFileNotCopied;
+                backupManager.DirCreated += OnDirCreated;
+                backupManager.DirNotCreated += OnDirNotCreated;
+                backupManager.DirBackupFailed += OnDirBackupFailed;
 
-            copyingManager.DoBackup();
+                backupManager.DoBackup();
 
-            Console.WriteLine("Done");
-            Console.ReadKey();
+                Console.WriteLine("Done");
+                Console.ReadKey();
+            }
+            catch (SettingsFileException e)
+            {
+                Console.WriteLine($"{e.Message} ({e.GetSettingsFilename()})");
+
+                var exampleFile = "example.json";
+                Console.WriteLine($"See example in {exampleFile}");
+                SettingsManager.CreateExampleJsonFile(exampleFile);
+
+                Console.ReadKey();
+            }
+            catch (TargetDirNotCreatedException e)
+            {
+                Console.WriteLine($"{e.Message} ({e.GetTargetDir()})");
+
+                Console.ReadKey();
+            }
         }
-        catch (SettingsFileException e)
+
+        private static void OnDirNotCreated(string dir)
         {
-            Console.WriteLine($"{e.Message} ({e.GetSettingsFilename()})");
-
-            var exampleFile = "example.json";
-            Console.WriteLine($"See example in {exampleFile}");
-            Settings.CreateExampleJsonFile(exampleFile);
-
-            Console.ReadKey();
+            Console.WriteLine($"Directory not created: {dir}");
         }
-        catch (TargetDirNotCreatedException e)
+
+        private static void OnDirCreated(string dir)
         {
-            Console.WriteLine($"{e.Message} ({e.GetTargetDir()})");
-
-            Console.ReadKey();
+            Console.WriteLine($"Directory created: {dir}");
         }
-    }
 
-    private static void OnDirNotCreated(string dir)
-    {
-        Console.WriteLine($"Directory not created: {dir}");
-    }
+        private static void OnFileNotCopied(string file)
+        {
+            Console.WriteLine($"File not copied: {file}");
+        }
 
-    private static void OnDirCreated(string dir)
-    {
-        Console.WriteLine($"Directory created: {dir}");
-    }
+        private static void OnFileCopied(string file)
+        {
+            Console.WriteLine($"File copied: {file}");
+        }
 
-    private static void OnFileNotCopied(string file)
-    {
-        Console.WriteLine($"File not copied: {file}");
-    }
-
-    private static void OnFileCopied(string file)
-    {
-        Console.WriteLine($"File copied: {file}");
-    }
-
-    private static void OnDirBackupFailed(string dir)
-    {
-        Console.WriteLine($"Directory backup failed: {dir}");
+        private static void OnDirBackupFailed(string dir)
+        {
+            Console.WriteLine($"Directory backup failed: {dir}");
+        }
     }
 }
